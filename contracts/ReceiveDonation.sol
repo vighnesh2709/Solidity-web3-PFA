@@ -7,7 +7,7 @@ contract ReceiveDonation {
    
    address owner;
    struct Suppliers {
-        address payable supplierAdd;
+        address payable supplierAdd;    
         uint required;
         uint received; 
    }
