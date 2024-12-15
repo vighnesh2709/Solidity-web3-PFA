@@ -3,8 +3,10 @@
 
 pragma solidity >=0.4.22 <0.9.0;
 
+import "./ReceiveDonation.sol";
+
 contract Adoption {
-    
+
     struct Details {
         string name;
         string adopted;
@@ -18,9 +20,20 @@ contract Adoption {
     }
 
 
-    mapping(address => Animal) public animals;
+    mapping(address => Animal)  animals;
 
     address public owner;
+
+    ReceiveDonation transC=new ReceiveDonation();
+
+    function incentiveTransfer(address sendersAddress) private returns(string memory) {
+        uint currentAmount=transC.checkValue(address(0));
+        require(currentAmount>0,"No incentive funds available");
+        uint amountToSend = (currentAmount * 10) / 100;
+        string memory status = transC.sendEthAdoption(sendersAddress, amountToSend);
+        return status;
+
+    }
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Only the owner can perform this action");

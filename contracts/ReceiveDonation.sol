@@ -21,7 +21,12 @@ contract ReceiveDonation {
    fallback() external payable { }
    
    function checkValue(address _current) public view returns(uint) {
-        return _current.balance;
+        if (_current==address(0)){
+          return address(this).balance;
+        }else{
+          return _current.balance;
+        }
+        
    }
 
    modifier onlyOwner(){
@@ -43,6 +48,22 @@ contract ReceiveDonation {
 
    function checkStatus(string memory to) public view returns(address,uint,uint,uint){
         return (suppliers[to].supplierAdd,suppliers[to].required,suppliers[to].received,suppliers[to].supplierAdd.balance);
+   }
+
+   // EOA do not have a bytecode where as contracts have a bytecode. So this function is checking if the given address has some bytecode, if yes its a contract. 
+   function isContract(address addr) internal view returns (bool) {
+    uint32 size;
+    assembly {
+        size := extcodesize(addr)
+    }
+    return (size > 0);
+}
+
+   function sendEthAdoption(address to,uint amount) external payable returns(string memory){
+        require(isContract(to),"cannot be invoked by an EOA");
+        (bool success, ) = to.call{value: amount}("");
+        require(success,"Transaction did not take place");
+        return ("transaction done");     
    }
    
    function sendEth(string memory to, uint amount) external payable returns(string memory) {
