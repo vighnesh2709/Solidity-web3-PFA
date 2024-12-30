@@ -1,6 +1,10 @@
 const Adoption = artifacts.require("Adoption");
+const ReceiveDonation = artifacts.require("ReceiveDonation");
 
 module.exports = async function (deployer, network, accounts) {
-  // Deploy the contract without sending any value
-  await deployer.deploy(Adoption, { from: accounts[0] });
+  // Retrieve the deployed ReceiveDonation instance
+  const receiveDonation = await ReceiveDonation.deployed();
+
+  // Deploy Adoption contract, passing the ReceiveDonation contract's address
+  await deployer.deploy(Adoption, receiveDonation.address, { from: accounts[0] });
 };
