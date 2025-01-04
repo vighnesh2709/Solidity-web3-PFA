@@ -46,11 +46,11 @@ contract ReceiveDonation {
         address payable SupplierAdd,
         uint required,
         string memory SupplierName
-    ) public onlyOwner returns (string, string, address, uint) {
+    ) public onlyOwner returns( string memory) {
         Suppliers storage s = suppliers[SupplierName];
         s.supplierAdd = SupplierAdd;
         s.required = required;
-        return ["Supplier Added", s, s.supplierAdd, s.required];
+        return "Added Supplier";
     }
 
     function checkStatus(

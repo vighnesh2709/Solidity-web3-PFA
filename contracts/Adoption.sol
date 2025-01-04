@@ -62,7 +62,7 @@ contract Adoption {
         string memory _name,
         string memory _species,
         address _userAddress
-    ) public onlyOwner returns (string) {
+    ) public onlyOwner returns (string memory) {
         require(bytes(_name).length > 0, "Name cannot be empty");
         require(bytes(_species).length > 0, "Species cannot be empty");
         require(_userAddress != address(0), "Invalid address");
