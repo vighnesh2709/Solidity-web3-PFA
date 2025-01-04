@@ -3,34 +3,37 @@
 pragma solidity >=0.4.22 <0.9.0;
 
 contract ReceiveDonation {
-    address owner;
-    struct Suppliers {
-        address payable supplierAdd;
-        uint required;
-        uint received;
-    }
-    mapping(string => Suppliers) suppliers;
-
     constructor() payable {
         owner = msg.sender;
     }
+
     receive() external payable {}
     fallback() external payable {}
 
     event Status(string message);
     event Debug(string message, uint256 value);
 
+    address owner;
+
+    struct Suppliers {
+        address payable supplierAdd;
+        uint required;
+        uint received;
+    }
+
+    mapping(string => Suppliers) suppliers;
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not Owner");
+        _;
+    }
+
     function checkValue(address _current) public view returns (uint) {
         if (_current == address(0)) {
             return address(this).balance;
         } else {
             return _current.balance;
-        }   
-    }
-
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Not Owner");
-        _;
+        }
     }
 
     function transferOwnership(address newOwner) public onlyOwner {
@@ -43,10 +46,11 @@ contract ReceiveDonation {
         address payable SupplierAdd,
         uint required,
         string memory SupplierName
-    ) public onlyOwner {
+    ) public onlyOwner returns (string, string, address, uint) {
         Suppliers storage s = suppliers[SupplierName];
         s.supplierAdd = SupplierAdd;
         s.required = required;
+        return ["Supplier Added", s, s.supplierAdd, s.required];
     }
 
     function checkStatus(
@@ -60,20 +64,10 @@ contract ReceiveDonation {
         );
     }
 
-    // EOA do not have a bytecode where as contracts have a bytecode. So this function is checking if the given address has some bytecode, if yes its a contract.
-    // function isContract(address addr) internal view returns (bool) {
-    //     uint32 size;
-    //     assembly {
-    //         size := extcodesize(addr)
-    //     }
-    //     return (size > 0);
-    // }
-
     function sendEthAdoption(
         address to,
         uint amount
     ) external payable returns (bool) {
-        // require(isContract(to), "cannot be invoked by an EOA");
         (bool success, ) = to.call{value: amount}("");
         require(success, "Transaction did not take place");
         emit Status("Transaction Completed");

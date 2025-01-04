@@ -5,6 +5,19 @@ pragma solidity >=0.4.22 <0.9.0;
 import "./ReceiveDonation.sol";
 
 contract Adoption {
+    constructor(address _ReceiveDonationAddress) {
+        owner = msg.sender;
+        ReceiveDonationAddress = _ReceiveDonationAddress;
+        transC = ReceiveDonation(payable(_ReceiveDonationAddress));
+    }
+
+    event Status(string message);
+    event Debug(string message, uint256 value);
+
+    address public owner;
+    address public ReceiveDonationAddress;
+    ReceiveDonation public transC;
+
     struct Details {
         string name;
         bool adopted;
@@ -17,31 +30,17 @@ contract Adoption {
         Details additionalDetails;
     }
 
-    event Status(string message);
-    event Debug(string message, uint256 value);
     mapping(address => Animal) animals;
-
-    address public owner;
-    address public ReceiveDonationAddress;
-
-    ReceiveDonation public transC;
-
-    constructor(address _ReceiveDonationAddress) {
-        owner = msg.sender;
-        ReceiveDonationAddress = _ReceiveDonationAddress;
-        transC = ReceiveDonation(payable(_ReceiveDonationAddress)); 
-    }
 
     function checkValue() public view returns (uint) {
         // Call the checkValue function from the ReceiveDonation contract
-        return transC.checkValue(address(0)); // Use the transC contract instance to get the balance
+        return transC.checkValue(address(0));
     }
 
     function incentiveTransfer(address sendersAddress) private returns (bool) {
         uint currentAmount = transC.checkValue(address(0));
         emit Debug("Amount is:", currentAmount);
-        require(currentAmount > 0, "No incentive funds available"); // Fix the logic here; check if funds are available
-        emit Status("Incentive funds available");
+        require(currentAmount > 0, "No incentive funds available");
         uint amountToSend = (currentAmount * 10) / 100;
         bool status = transC.sendEthAdoption(sendersAddress, amountToSend);
         require(status, "Transaction did not happen");
@@ -63,7 +62,7 @@ contract Adoption {
         string memory _name,
         string memory _species,
         address _userAddress
-    ) public onlyOwner {
+    ) public onlyOwner returns (string) {
         require(bytes(_name).length > 0, "Name cannot be empty");
         require(bytes(_species).length > 0, "Species cannot be empty");
         require(_userAddress != address(0), "Invalid address");
@@ -77,6 +76,7 @@ contract Adoption {
             userAddress: _userAddress,
             additionalDetails: Details("", false, address(0))
         });
+        return "Details Added";
     }
 
     function getAnimal(
@@ -108,12 +108,6 @@ contract Adoption {
         );
     }
 
-    // this function is the adoption function that upon adoption, u get some moeny which will come from the main contract and then we good
-    // who is adopting
-    // who is getting adopted
-    // address of who is adopting
-    // species of who is getting adopted
-    // address of who is getting adopted
     function adopt(
         string memory _adopterName,
         address _adopterAddress,
