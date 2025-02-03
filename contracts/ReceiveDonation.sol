@@ -3,6 +3,7 @@
 pragma solidity >=0.4.22 <0.9.0;
 
 contract ReceiveDonation {
+    
     constructor() payable {
         owner = msg.sender;
     }
@@ -46,7 +47,7 @@ contract ReceiveDonation {
         address payable SupplierAdd,
         uint required,
         string memory SupplierName
-    ) public onlyOwner returns( string memory) {
+    ) public onlyOwner returns (string memory) {
         Suppliers storage s = suppliers[SupplierName];
         s.supplierAdd = SupplierAdd;
         s.required = required;
