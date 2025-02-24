@@ -29,29 +29,29 @@ async function deployContract() {
       gasPrice: "300000000000",
       value: web3.utils.toWei('1','ether'),
     });
-    console.log("Contract deployed at:", receipt.options.address);
+    // console.log("Contract deployed at:", receipt.options.address);
     const deployedContract = new web3.eth.Contract(abi, receipt.options.address);
 
     let totalTransaction = 3;
     let startTime = performance.now();
 
     let ans = await deployedContract.methods.checkValue(receipt.options.address).call();
-    console.log("Check Value:", ans.toString());
+    // console.log("Check Value:", ans.toString());
 
     let ans1 = await deployedContract.methods.addSupplier(accounts[1],web3.utils.toWei('1','ether'),"Food").send({from: deployerAccount,gas:500000});
-    console.log(ans1)
+    // console.log(ans1)
     totalGas=ans1.gasUsed*ans1.effectiveGasPrice
 
     let ans2 = await deployedContract.methods.sendEth('Food',web3.utils.toWei('1',"ether")).send({from: deployerAccount,gas:500000});
-    console.log(ans2.toString())
+    // console.log(ans2.toString())
     let check = ans2.gasUsed*ans2.effectiveGasPrice
     totalGas+=check
 
     let ans3 = await deployedContract.methods.checkValue(accounts[1]).call()
-    console.log(ans3.toString());
+    // console.log(ans3.toString());
 
     let ans4 = await deployedContract.methods.checkValue(receipt.options.address).call();
-    console.log("Check Value:", ans4.toString());
+    // console.log("Check Value:", ans4.toString());
     
     
     
@@ -59,15 +59,15 @@ async function deployContract() {
     let elapseTime = (endTime-startTime)/1000
     let tps = totalTransaction/elapseTime
     let gasCostInEther = web3.utils.fromWei(totalGas,'ether')
-
-    console.log("Gas cost: ",web3.utils.fromWei(totalGas,'ether'))
-    console.log(`Total Transactions: ${totalTransaction}`);
-    console.log(`Elapsed Time: ${elapseTime.toFixed(4)} seconds`);
-    console.log(`Throughput (TPS): ${tps.toFixed(4)}`);
+    console.log(new Date(Number((await web3.eth.getBlock("latest")).timestamp) * 1000).toLocaleString());
+    // console.log("Gas cost: ",web3.utils.fromWei(totalGas,'ether'))
+    // console.log(`Total Transactions: ${totalTransaction}`);
+    // console.log(`Elapsed Time: ${elapseTime.toFixed(4)} seconds`);
+    // console.log(`Throughput (TPS): ${tps.toFixed(4)}`);
 
     const csvData = `${gasCostInEther},${totalTransaction},${elapseTime.toFixed(4)},${tps.toFixed(4)}\n`;
     fs.appendFileSync('eth.csv',csvData,'utf-8');
-    console.log("Data weitten");
+    // console.log("Data weitten");
   } catch (error) {
     console.error("Error deploying contract:", error);
   }
@@ -75,7 +75,8 @@ async function deployContract() {
 }
 
 
-for(let i=0;i<100;i++){
-  deployContract();
-}
+
+setInterval(() => {
+    deployContract();
+  }, 1000);
 // contractActions();
