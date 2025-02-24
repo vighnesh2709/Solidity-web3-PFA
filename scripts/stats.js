@@ -2,20 +2,20 @@
 // Get latest block by timestamp
 // Get block number details and the timestamp details. to get average block time. 
 // Gas Oracle for gas price tracking
-// Etherscan API Key Token : E7JX6R6GF9ICFGBR9H49S9356YH5TV9GVY
+// Etherscan API Key Token : \
 
 // Poly Scan
 // Same can be done for timestamp and all that for polygon
 // And Gas Oracle also 
-// PolyScan API Key Token : 7XEKJUG6FGMYZFRWVSTMZ2BYI4CC42CQJV
+// PolyScan API Key Token : \
 
 
 
 const axios = require('axios');
 const fs = require('fs');
 
-let API_KEY = "E7JX6R6GF9ICFGBR9H49S9356YH5TV9GVY";
-let API_KEY_2 = "7XEKJUG6FGMYZFRWVSTMZ2BYI4CC42CQJV";
+let API_KEY = "";
+let API_KEY_2 = "";
 
 // Store previous block data globally
 let previousBlock = null;
