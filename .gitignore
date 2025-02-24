@@ -1,2 +1,4 @@
 truffle-config.js
 build
+.env
+node_modules
