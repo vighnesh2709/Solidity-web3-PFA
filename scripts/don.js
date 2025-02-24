@@ -53,15 +53,21 @@ async function deployContract() {
     let ans4 = await deployedContract.methods.checkValue(receipt.options.address).call();
     console.log("Check Value:", ans4.toString());
     
-    console.log(web3.utils.fromWei(totalGas,'ether'))
+    
     
     let endTime = performance.now()
     let elapseTime = (endTime-startTime)/1000
     let tps = totalTransaction/elapseTime
+    let gasCostInEther = web3.utils.fromWei(totalGas,'ether')
 
+    console.log("Gas cost: ",web3.utils.fromWei(totalGas,'ether'))
     console.log(`Total Transactions: ${totalTransaction}`);
     console.log(`Elapsed Time: ${elapseTime.toFixed(4)} seconds`);
     console.log(`Throughput (TPS): ${tps.toFixed(4)}`);
+
+    const csvData = `${gasCostInEther},${totalTransaction},${elapseTime.toFixed(4)},${tps.toFixed(4)}\n`;
+    fs.appendFileSync('eth.csv',csvData,'utf-8');
+    console.log("Data weitten");
   } catch (error) {
     console.error("Error deploying contract:", error);
   }
@@ -69,6 +75,7 @@ async function deployContract() {
 }
 
 
-
-deployContract();
+for(let i=0;i<100;i++){
+  deployContract();
+}
 // contractActions();
