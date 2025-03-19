@@ -20,6 +20,8 @@ contract ReceiveDonation {
         address payable supplierAdd;
         uint required;
         uint received;
+        uint rating;
+        uint noRating;
     }
 
     mapping(string => Suppliers) suppliers;
@@ -51,6 +53,8 @@ contract ReceiveDonation {
         Suppliers storage s = suppliers[SupplierName];
         s.supplierAdd = SupplierAdd;
         s.required = required;
+
+        emit Status("Added Supplier"); 
         return "Added Supplier";
     }
 
@@ -127,4 +131,37 @@ contract ReceiveDonation {
         emit Status("Funds transferred successfully.");
         return "Funds transferred successfully";
     }
+
+    function DonorConfirmation(
+            string memory supplierName, 
+            uint rating
+        ) external {
+        // Validate rating is between 1 and 5
+            require(rating >= 1 && rating <= 5, "Rating must be between 1 and 5");
+        
+        // Retrieve the supplier
+            Suppliers storage supplier = suppliers[supplierName];
+            require(supplier.supplierAdd != address(0), "Supplier does not exist");
+        
+        // Calculate new rating
+        // New rating = (Current total rating + New rating) / (Number of ratings + 1)
+            supplier.rating = (supplier.rating * supplier.noRating + rating) / (supplier.noRating + 1);
+        
+        // Increment number of ratings
+            supplier.noRating += 1;
+        
+        // Emit an event to log the rating
+            emit Status("Donor rating submitted successfully");
+    }
+    
+    // New function to track the average score of a supplier
+    function TrackScore(
+        string memory supplierName
+    ) external view returns (uint averageRating, uint numberOfRatings) {
+        Suppliers storage supplier = suppliers[supplierName];
+        
+        // Return the current average rating and number of ratings
+        return (supplier.rating, supplier.noRating);
+    }
+    
 }

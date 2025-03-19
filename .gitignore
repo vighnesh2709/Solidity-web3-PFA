@@ -1,4 +1,7 @@
 truffle-config.js
 build
 .env
+writing part
 node_modules
+node_modules/.bin/rlp
+node_modules/.package-lock.json

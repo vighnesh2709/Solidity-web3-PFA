@@ -13,14 +13,14 @@
 
 const axios = require('axios');
 const fs = require('fs');
+const { Web3 } = require("web3");
 
-let API_KEY = "";
-let API_KEY_2 = "";
+const web3 = new Web3();
+
+let API_KEY = "E7JX6R6GF9ICFGBR9H49S9356YH5TV9GVY";
+let API_KEY_2 = "7XEKJUG6FGMYZFRWVSTMZ2BYI4CC42CQJV";
 
 // Store previous block data globally
-let previousBlock = null;
-let previousTimestamp = null;
-
 // async function ethData() {
 
 // try {
@@ -67,21 +67,38 @@ let path = '/home/vighnesh/Desktop/Solidity-web3-PFA/scripts/eth.csv'
 async function ethData() {
     try {
         const url1 = `https://api.etherscan.io/api?chainid=1&module=gastracker&action=gasoracle&apikey=${API_KEY}`;
+        const valUrl = `https://api.etherscan.io/v2/api?chainid=1&module=stats&action=ethprice&apikey=${API_KEY}`;
 
         let response = await axios.get(url1);
+        let response2 = await axios.get(valUrl);
 
         if (response.data.status === "1") { // Check if API response is successful
-            let SafeGasPrice = response.data.result.SafeGasPrice;
-            let ProposeGasPrice = response.data.result.ProposeGasPrice;
-            let FastGasPrice = response.data.result.FastGasPrice;
-            let SuggestedBase = response.data.result.suggestBaseFee;
-            let timestamp = Math.floor(Date.now() / 1000); // Unix timestamp for tracking
-
-            let csvRow = `${timestamp},${SafeGasPrice},${ProposeGasPrice},${FastGasPrice},${SuggestedBase}\n`;
+            let safeGasPrice = response.data.result.SafeGasPrice;
+            let proposeGasPrice = response.data.result.ProposeGasPrice;
+            let fastGasPrice = response.data.result.FastGasPrice;
+            let suggestedBase = response.data.result.suggestBaseFee; 
+            
+            let ethUsdPrice = response2.data.result.ethusd;
+            
+            let safeGasPriceEth = web3.utils.fromWei(web3.utils.toWei(safeGasPrice, 'gwei'), 'ether');
+            let proposeGasPriceEth = web3.utils.fromWei(web3.utils.toWei(proposeGasPrice, 'gwei'), 'ether');
+            let fastGasPriceEth = web3.utils.fromWei(web3.utils.toWei(fastGasPrice, 'gwei'), 'ether');
+            let suggestedBaseEth = web3.utils.fromWei(web3.utils.toWei(suggestedBase, 'gwei'), 'ether');
+            
+      
+            // Calculate USD values using web3 conversions
+            let safeGasPriceUsd = parseFloat(safeGasPriceEth) * ethUsdPrice;
+            let proposeGasPriceUsd = parseFloat(proposeGasPriceEth) * ethUsdPrice;
+            let fastGasPriceUsd = parseFloat(fastGasPriceEth) * ethUsdPrice;
+            let suggestedBaseUsd = parseFloat(suggestedBaseEth) * ethUsdPrice;
+            
+            let timestamp = Math.floor(Date.now() / 1000);
+            
+            // Format for CSV with appropriate precision
+            let csvRow = `${timestamp},${safeGasPriceEth},${proposeGasPriceEth},${fastGasPriceEth},${suggestedBaseEth},${safeGasPriceUsd},${proposeGasPriceUsd},${fastGasPriceUsd},${suggestedBaseUsd},${ethUsdPrice}\n`;
+            
             fs.appendFileSync(path, csvRow, 'utf8');
-
             console.log("Data appended:", csvRow.trim());
-
         } else {
             console.error("Error fetching gas price:", response.data.message);
         }
@@ -93,21 +110,38 @@ let path2 = '/home/vighnesh/Desktop/Solidity-web3-PFA/scripts/poly.csv'
 async function PolyData() {
     try {
         const url1 = `https://api.polygonscan.com/api?module=gastracker&action=gasoracle&apikey=${API_KEY_2}`;
+        const valUrl2 = `https://api.polygonscan.com/api?module=stats&action=maticprice&apikey=${API_KEY_2}`;
 
         let response = await axios.get(url1);
+        let response2 = await axios.get(valUrl2);
 
         if (response.data.status === "1") { // Check if API response is successful
-            let SafeGasPrice = response.data.result.SafeGasPrice;
-            let ProposeGasPrice = response.data.result.ProposeGasPrice;
-            let FastGasPrice = response.data.result.FastGasPrice;
-            let SuggestedBase = response.data.result.suggestBaseFee;
-            let timestamp = Math.floor(Date.now() / 1000); // Unix timestamp for tracking
+            let safeGasPrice = response.data.result.SafeGasPrice;
+            let proposeGasPrice = response.data.result.ProposeGasPrice;
+            let fastGasPrice = response.data.result.FastGasPrice;
+            let suggestedBase = response.data.result.suggestBaseFee; 
+            
+            let PolyUsdPrice = (response2.data.result.maticusd);
 
-            let csvRow = `${timestamp},${SafeGasPrice},${ProposeGasPrice},${FastGasPrice},${SuggestedBase}\n`;
+            let safeGasPricePoly = web3.utils.fromWei(web3.utils.toWei(safeGasPrice, 'gwei'), 'ether');
+            let proposeGasPricePoly = web3.utils.fromWei(web3.utils.toWei(proposeGasPrice, 'gwei'), 'ether');
+            let fastGasPricePoly = web3.utils.fromWei(web3.utils.toWei(fastGasPrice, 'gwei'), 'ether');
+            let suggestedBasePoly = web3.utils.fromWei(web3.utils.toWei(suggestedBase, 'gwei'), 'ether');
+            
+      
+            // Calculate USD values using web3 conversions
+            let safeGasPriceUsd = parseFloat(safeGasPricePoly) * PolyUsdPrice;
+            let proposeGasPriceUsd = parseFloat(proposeGasPricePoly) * PolyUsdPrice;
+            let fastGasPriceUsd = parseFloat(fastGasPricePoly) * PolyUsdPrice;
+            let suggestedBaseUsd = parseFloat(suggestedBasePoly) * PolyUsdPrice;
+            
+            let timestamp = Math.floor(Date.now() / 1000);
+            
+            // Format for CSV with appropriate precision
+            let csvRow = `${timestamp},${safeGasPricePoly},${proposeGasPricePoly},${fastGasPricePoly},${suggestedBasePoly},${safeGasPriceUsd},${proposeGasPriceUsd},${fastGasPriceUsd},${suggestedBaseUsd},${PolyUsdPrice}\n`;
+            
             fs.appendFileSync(path2, csvRow, 'utf8');
-
             console.log("Data appended:", csvRow.trim());
-
         } else {
             console.error("Error fetching gas price:", response.data.message);
         }
